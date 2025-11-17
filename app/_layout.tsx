@@ -1,24 +1,34 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+// 1. Import the AuthProvider from your hooks directory
+// Adjust the path (e.g., '../../hooks/useAuth') if your 'hooks' folder is nested differently.
+import { AuthProvider } from '../Services/useAuth';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+// 2. Import the recommended SafeAreaProvider
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
 
+// This layout controls the navigation stack for all screens
+// inside the 'app/Authentication' folder.
+
+export default function AuthLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    // Step A: Wrap the entire layout in SafeAreaProvider
+    <SafeAreaProvider>
+      {/* Step B: Wrap the navigation stack with the AuthProvider.
+        This makes 'useAuth()' available to all screens inside this stack,
+        including LoginScreen.jsx.
+      */}
+      <AuthProvider>
+        <Stack
+          screenOptions={{
+            // This is the core instruction to hide the header bar for ALL Auth screens
+            headerShown: false,
+          }}
+        >
+          {/* All screens in the Authentication folder (Login, Signup, etc.) are children here */}
+        </Stack>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
