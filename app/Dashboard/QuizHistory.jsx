@@ -21,30 +21,30 @@ import { getQuizResults, initDatabase } from '../../Services/Database';
 // NOTE: Defined THEME_COLORS based on the screenshot and uniform style
 const THEME_COLORS = {
     // Primary Branding Colors
-    PrimaryBrown: '#8B4513',        // Darker Brown (Icons, Main Text Accent)
-    SecondaryBrown: '#D2B48C',      // Lighter Brown/Tan (Soft Accents)
+    PrimaryBrown: '#8B4513',        // Darker Brown (Icons, Main Text Accent)
+    SecondaryBrown: '#D2B48C',      // Lighter Brown/Tan (Soft Accents)
     
     // Background and Card Colors
-    PrimaryBackground: '#F7F4EF',   // Light Beige/Cream (Main Screen Background - Matches image)
-    CardBackground: '#FFFFFF',      // White for list item cards
+    PrimaryBackground: '#F7F4EF',   // Light Beige/Cream (Main Screen Background - Matches image)
+    CardBackground: '#FFFFFF',      // White for list item cards
     
     // Text and Status Colors
-    PrimaryText: '#333333',         // Dark Gray (Main text)
-    SecondaryText: '#777777',       // Medium Gray (Subtitle text)
-    SuccessGreen: '#4CAF50',        // Green (High score)
-    DangerRed: '#D84315',           // Red (Low score, Error messages)
-    WarningOrange: '#FF9800',       // Orange (Middle tier score)
+    PrimaryText: '#333333',         // Dark Gray (Main text)
+    SecondaryText: '#777777',       // Medium Gray (Subtitle text)
+    SuccessGreen: '#4CAF50',        // Green (High score)
+    DangerRed: '#D84315',           // Red (Low score, Error messages)
+    WarningOrange: '#FF9800',       // Orange (Middle tier score)
 };
 
 // =========================================================
-// HISTORY ITEM RENDERER
+// HISTORY ITEM RENDERER (UNMODIFIED)
 // =========================================================
 
 const HistoryItem = ({ item }) => {
     // Score color logic
     const scoreColor = item.percentage >= 70 ? THEME_COLORS.SuccessGreen : 
-                       item.percentage >= 50 ? THEME_COLORS.WarningOrange : 
-                       THEME_COLORS.DangerRed;
+                        item.percentage >= 50 ? THEME_COLORS.WarningOrange : 
+                        THEME_COLORS.DangerRed;
 
     // Use shorter date format for better fit
     const dateOptions = { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -80,7 +80,7 @@ const HistoryItem = ({ item }) => {
 };
 
 // =========================================================
-// MAIN COMPONENT: QuizHistory
+// MAIN COMPONENT: QuizHistory (UPDATED fetchHistory)
 // =========================================================
 
 const QuizHistory = () => { 
@@ -105,8 +105,20 @@ const QuizHistory = () => {
                 setHistory([]);
                 return;
             }
+            
             const results = await getQuizResults(user.id);
-            setHistory(results.reverse()); 
+            
+            // ⭐ FIX: Ensure Descending Order (Latest First) using explicit date comparison.
+            const sortedHistory = [...results].sort((a, b) => {
+                // Convert dates to timestamps for reliable comparison
+                const dateA = new Date(a.date).getTime();
+                const dateB = new Date(b.date).getTime();
+                
+                // DESCENDING sort: b - a puts the greater (later) date first.
+                return dateB - dateA; 
+            });
+
+            setHistory(sortedHistory);
         } catch (e) {
             console.error("Failed to fetch quiz history:", e);
             setError(`Failed to load history: ${e.message}`);
@@ -123,7 +135,7 @@ const QuizHistory = () => {
         }, [fetchHistory]) 
     );
 
-    // --- RENDER LOGIC ---
+    // --- RENDER LOGIC (UNMODIFIED) ---
 
     if (isLoading) {
         return (
@@ -206,7 +218,7 @@ const QuizHistory = () => {
 };
 
 // =========================================================
-// STYLESHEET (Aesthetic and Functional)
+// STYLESHEET (UNMODIFIED)
 // =========================================================
 
 const historyStyles = StyleSheet.create({

@@ -742,7 +742,7 @@ const QuizGenerator = ({ navigation , onQuizStatusChange}) => {
         
         {/* Main Header Text */}
         <Text style={{ fontSize: 22, fontWeight: '700', color: THEME_COLORS.PrimaryText, marginTop: 0 }}>
-            Generate Reviewer
+            Generate Quiz
         </Text>
         <Text style={styles.subtitle}>
             Upload a text file or paste notes below to instantly generate a comprehensive study guide.
@@ -882,7 +882,7 @@ const QuizGenerator = ({ navigation , onQuizStatusChange}) => {
            {isLoading && (
             <View style={styles.inlineStatusBar}>
                 <ActivityIndicator size="small" color={THEME_COLORS.PrimaryBrown} />
-                <Text style={styles.statusText}>Generating Reviewer... Please wait.</Text>
+                <Text style={styles.statusText}>Generating Quiz... Please wait.</Text>
             </View>
         )}
 
