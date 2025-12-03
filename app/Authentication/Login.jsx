@@ -4,8 +4,6 @@ import {
     ActivityIndicator // Added for visual feedback during login attempt
     ,
 
-
-
     Alert,
     Image,
     SafeAreaView,
@@ -18,7 +16,9 @@ import {
 
 // --- NEW IMPORT ---
 // Adjust the path to your 'hooks' folder if necessary
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from '../../Services/useAuth';
+
 
 // Import styles and COLORS
 import styles, { COLORS } from './AuthStyles';
@@ -57,40 +57,53 @@ const LoginScreen = () => {
 
 
     // Standard Login Auth (UPDATED)
-    const handleLogin = async () => {
-        if (!email || !password) {
-            Alert.alert("Login Failed", "Please enter both email and password.");
+   // =======================
+const handleLogin = async () => {
+    if (!email || !password) {
+        Alert.alert("Login Failed", "Please enter both email and password.");
+        return;
+    }
+
+    setIsAuthenticating(true);
+
+    try {
+        // 1. Authenticate user from DB
+        const user = await getUserByAuthAccount(email, password);
+
+        if (!user) {
+            Alert.alert("Invalid Credentials", "Incorrect email or password.");
+            setIsAuthenticating(false);
             return;
         }
 
-        setIsAuthenticating(true); // Start spinner
+        // 2. Save user in AuthContext
+        login(user);
 
-        try {
-            // 1. Authenticate with the database service
-            const user = await getUserByAuthAccount(email, password);
+        // 3. ALSO save user in AsyncStorage for global access
+        await AsyncStorage.setItem(
+            "currentUser",
+            JSON.stringify({
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.authAccount,
+            })
+        );
 
-            if (!user) {
-                Alert.alert("Invalid Credentials", "Incorrect email or password.");
-                setIsAuthenticating(false);
-                return;
-            }
+        console.log("🔥 User saved to AsyncStorage:", user.id);
 
-            // 2. SUCCESS: Save the user data to the global AuthContext
-            login(user); 
+        Alert.alert("Welcome Back!", `Hello, ${user.firstName}!`);
 
-            Alert.alert("Welcome Back!", `Hello, ${user.firstName}!`);
+        // 4. Navigate to dashboard
+        router.replace('../Dashboard/Dashboard');
 
-            // 3. Navigate to your dashboard screen
-            // The user object is now available globally via useAuth() in the /Home component
-            router.replace('../Dashboard/Dashboard'); 
-
-        } catch (err) {
-            console.error("Login error:", err);
-            Alert.alert("Error", "Something went wrong during login. Please try again.");
-        } finally {
-            setIsAuthenticating(false); // Stop spinner (if not navigating away)
-        }
-    };
+    } catch (err) {
+        console.error("Login error:", err);
+        Alert.alert("Error", "Something went wrong during login.");
+    } finally {
+        setIsAuthenticating(false);
+    }
+};
 
 
     // Google Sign-In Handler
